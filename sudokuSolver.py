@@ -1,20 +1,64 @@
 import numpy as np
-# import math
+import util
+import copy
 
 class BoardState:
-	def __init__(self, assignment, domains):
-		self.assignment = np.array(assignment)
-		self.domains = np.array(domains)
+	def __init__(self, assignment, domains=None):
 		self.size = int(np.sqrt(len(assignment)))
+		if domains is not None:
+			self.assignment = np.array(assignment)
+			self.domains = copy.deepcopy(domains)
+		else:
+			self.assignment = np.full((self.size**2, self.size**2), None)
+			self.domains = np.full((self.size**2, self.size**2), set())
+			for row in range(self.size**2):
+				for column in range(self.size**2):
+					self.domains[row, column] = set(range(1, size**2 + 1))
 
 	def assignVariable(self, variable, value):
 		self.assignment[variable] = value
 		self.domains[variable] = set([value])
 
+		# Remove value from domains of neighbours
+		return self.forwardChecking(variable, value)
+
 		# Call arc consistency starting from variable
 
-	def arcConsistency(self, varaible):
-		queue = 
+	def forwardChecking(self, variable, value):
+		row, column = variable
+		neighbours = []
+		for x in range(size**2):
+			if x != column:
+				neighbours.append( (row, x) )
+
+		for y in range(size**2):
+			if y != row:
+				neighbours.append( (y, column) )
+
+		for y in range(size * (row // size), size * (row // size + 1)):
+			for x in range(size * (column // size), size * (column // size + 1)):
+				if y != row and x != column:
+					neighbours.append( (y, x) )
+
+		print(len(neighbours), 'neighbours')
+
+		for neighbour in neighbours:
+			self.domains[neighbour].discard(value)
+			if len(self.domains[neighbour]) == 0:
+				return False
+
+
+		for group in self.domains[row, :], self.domains[:, column], self.domains[size * (row // size):size * (row // size + 1), size * (column // size):size * (column // size + 1)].flatten():
+			for n in range(1, size**2 + 1):
+				if not any(n in domain for domain in group):
+					return False
+
+		return True
+		
+
+	# def arcConsistency(self, variable):
+	# 	queue = util.Queue()
+
 
 	def solveCSP(self):
 		if self.isComplete():
@@ -77,7 +121,19 @@ assignment = np.full((size**2, size**2), None)
 assignment[1][2] = 9
 assignment[0][3] = 12
 fullDomains = np.full((size**2, size**2), set(range(1, size**2 + 1)))
-board = BoardState(assignment, fullDomains)
+board = BoardState(assignment)
 board.assignVariable((3, 0), 1)
+a1 = np.array(board.assignment)
+a1[3, 3] = 5
 print(board)
+a2 = np.array(board.domains)
+a2[3, 3] = set([1,2,3,4,5])
+fullDomains[3, 3].add(88)
 board.printDomainSizes()
+
+# a = np.array([5,6,7])
+# b = np.array(a)
+# c = a
+# a[1] = 9
+# print(b)
+# print(c)
