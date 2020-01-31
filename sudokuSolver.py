@@ -11,7 +11,6 @@ class BoardState:
 			assignment = np.array([int(x) if x != '.' else None for x in assignment])
 			sizeSquared = int(np.sqrt(len(assignment)))
 			assignment = np.reshape(assignment, (sizeSquared, sizeSquared))
-			print(assignment)
 
 		self.size = int(np.sqrt(len(assignment)))
 		if domains is not None:
@@ -36,8 +35,6 @@ class BoardState:
 
 		# Remove value from domains of neighbours
 		return self.forwardChecking(variable, value)
-
-		# Call arc consistency starting from variable
 
 	def forwardChecking(self, variable, value):
 		size = self.size
@@ -87,7 +84,8 @@ class BoardState:
 					nextVariable = (row, column)
 		for value in self.domains[nextVariable]:
 			nextState = self.copy()
-			nextState.assignVariable(nextVariable, value)
+			if nextState.assignVariable(nextVariable, value) == False:
+				continue
 			result = nextState.solveCSP()
 			# Success - found solution
 			if result is not False:
@@ -134,41 +132,8 @@ class BoardState:
 	def printDomainSizes(self):
 		print(self.boardImage(self.getDomainSize))
 
-# size = 2
-# assignment = np.full((size**2, size**2), None)
-# assignment[1][2] = 2
-# assignment[0][3] = 3
-# board = BoardState(assignment)
-# board.assignVariable((3, 2), 1)
-# a1 = np.array(board.assignment)
-# a1[3, 3] = 5
-# print(board)
-# a2 = np.array(board.domains)
-# a2[3, 3] = set([1,2,3,4,5])
+board = BoardState("greta's_board.txt")
+print(board)
 # board.printDomainSizes()
-
-# # a = np.array([5,6,7])
-# # b = np.array(a)
-# # c = a
-# # a[1] = 9
-# # print(b)
-# # print(c)
-# print(board.domains[0, 2])
-
-# print(board.solveCSP())
-# print(board)
-
-# size = 3
-# board = BoardState(np.full((size**2, size**2), None))
-# print(board.solveCSP())
-# # print(board)
-
-# # size = 4
-# # board = BoardState(np.full((size**2, size**2), None))
-# # print(board.solveCSP())
-# # print(board)
-# # board.printBlank()
-
-board = BoardState('first_test.txt')
 board.solveCSP()
 print(board)
